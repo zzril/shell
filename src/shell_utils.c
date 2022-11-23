@@ -1,4 +1,11 @@
+#include <stdio.h>
+
+#include <string.h>
+#include <unistd.h>
+
 #include "shell_utils.h"
+
+#define BUFFER_SIZE 4096
 
 // --------
 
@@ -88,6 +95,60 @@ char* get_next_token(char** s) {
 				return NULL;
 		}
 	}
+}
+
+
+char** get_next_command(char*** argv) {
+
+	char** argv_start = *argv;
+	char* current_arg;
+
+	// sanitize input:
+	if(argv == NULL || *argv == NULL || **argv == NULL) {
+		return NULL;
+	}
+
+	while(1) {
+
+		current_arg = **argv;
+
+		// if reached end of argv, ensure all further calls on `argv` will return NULL:
+		if(current_arg == NULL) {
+			*argv = NULL;
+			return argv_start;
+		}
+		else {
+			(*argv)++;
+		}
+
+		switch(strcmp(current_arg, "|")) {
+			case 0:
+				*((*argv)-1) = NULL;
+				return argv_start;
+			default:
+				break;
+		}
+	}
+}
+
+void flush_pipe(int pipe_read_fd) {
+
+	char buffer[BUFFER_SIZE];
+	ssize_t bytes_read = 0;
+
+	do {
+		memset(buffer, 0, BUFFER_SIZE);
+		bytes_read = read(pipe_read_fd, buffer, BUFFER_SIZE);
+
+		if(bytes_read <= 0) {
+			if(bytes_read < 0) { perror("read"); return; }
+			break;
+		}
+		fputs(buffer, stdout);
+
+	} while(bytes_read != 0);
+
+	return;
 }
 
 
