@@ -72,7 +72,7 @@ static size_t shell_getline() {
 
 	if(getline(&(shell_resources.input_buffer), &(shell_resources.input_buffer_len), stdin) < 0) {
 		if(errno != 0) {
-			perror("getline"); shell_exit(EXIT_FAILURE);
+			shell_fail_errno_msg("getline");
 		}
 		else { // end of file
 			shell_exit(EXIT_SUCCESS);
