@@ -28,9 +28,11 @@ clean:
 # --------
 
 $(BIN): $(OBJ)
+	mkdir -p $(BIN_DIR)
 	$(LD) $(LDFLAGS) -o $@ $^
 
 $(BLD_DIR)%.o: $(SRC_DIR)%.c $(HEADERS)
+	mkdir -p $(BLD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 
